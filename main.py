@@ -1,23 +1,22 @@
-import sympy as sy
 import core
 import algorithms
+import sys
 
 ENCRYPT = True
-DECRYPT = False
+DECRYPT = True
 
-p = sy.randprime(1e2, 1e3)
-q = sy.randprime(1e2, 1e3)
-while q == p:
-    q = sy.randprime(1e2, 1e4)
+input_ = sys.argv[1]
+output = sys.argv[2]
 
-publicKey, privateKey = algorithms.get_keys(p, q)
+
+publicKey, privateKey = algorithms.get_keys(32)
+
 
 print(publicKey)
 print(privateKey)
 
-
 if ENCRYPT:
-    core.encrypt_file("dupa.txt","dupa_encoded.txt",publicKey)
+    core.encrypt_file(input_,output,publicKey)
 
 if DECRYPT:
-    core.decrypt_file("dupa_encoded.txt","dupa_decoded.txt",privateKey)
+    core.decrypt_file(output,input_ + 'decoded.txt',privateKey)
