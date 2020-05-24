@@ -50,7 +50,9 @@ class KeyGenModel(Model):
             self, "QFileDialog.getSaveFileName()", "", "All Files (*);;Text Files (*.txt)", options=options)
         # raise NotImplemented
         if filename:
-            print('saving dummy %s key to %s' % (self.cb.currentText(), filename))
+            print('saving dummy %s key to %s' %
+                  (self.cb.currentText(), filename))
+        
 
 
 class EncryptionModel(Model):
@@ -71,6 +73,8 @@ class EncryptionModel(Model):
         hbox.addWidget(self.symmetric_cb)
         self.layout.addLayout(hbox)
 
+        # hbox = QHBoxLayout()
+
         hbox = QHBoxLayout()
         encrypt_button = QPushButton('Encrypt file')
         encrypt_button.clicked.connect(self.encrypt_file)
@@ -86,6 +90,33 @@ class EncryptionModel(Model):
             print('encrypting %s' % fileName)
 
 
+class DecryptionModel(Model):
+    def __init__(self):
+        self.encrypted_file_label:QLabel = None
+        self.encrypted_file_path: str = None
+        super().__init__()
+
+    def setup(self):
+        self.layout = QVBoxLayout()
+        title = QLabel('Decryption')
+        title.setAlignment(QtCore.Qt.AlignCenter)
+        self.layout.addWidget(title)
+
+        hbox = QHBoxLayout()
+        self.encrypted_file_label = QLabel("File to decrypt")
+        hbox.addWidget(self.encrypted_file_label)
+        encrypted_button = QPushButton("Pick encrypted file")
+        encrypted_button.clicked.connect(self.pick_file_to_decrypt)
+        hbox.addWidget(encrypted_button)
+        self.layout.addLayout(hbox)
+
+        hbox = QHBoxLayout()
+
+        # decrypt_button = QPushButton(
+
+    def pick_file_to_decrypt(self):
+        pass
+
 
 
 class Gui(QWidget):
@@ -100,6 +131,7 @@ class Gui(QWidget):
         self.vbox = None
         self.keyGenModel = KeyGenModel()
         self.encryptionModel = EncryptionModel()
+        self.decryptionModel = DecryptionModel()
         self.initUI()
         self.layout = None
 
@@ -111,50 +143,11 @@ class Gui(QWidget):
         vbox = QVBoxLayout()
         vbox.addLayout(self.keyGenModel.layout)
         vbox.addLayout(self.encryptionModel.layout)
-        vbox.addLayout(self.createDecryptingBox())
+        vbox.addLayout(self.decryptionModel.layout)
         self.setLayout(vbox)
         # with open('style.css') as styles:
         #     self.setStyleSheet(styles.read())
         self.show()
-
-    def createEncryptingBox(self):
-        hbox = QHBoxLayout()
-        okButton = QPushButton("OK")
-        hbox.addWidget(okButton)
-        return hbox
-
-    def createDecryptingBox(self):
-        hbox = QHBoxLayout()
-        okButton = QPushButton("OK")
-        hbox.addWidget(okButton)
-        return hbox
-
-    def generate_key_callback(self):
-        print("gen key clicked")
-
-    def openFileNameDialog(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName(
-            self, "QFileDialog.getOpenFileName()", "", "All Files (*);;Python Files (*.py)", options=options)
-        if fileName:
-            print(fileName)
-
-    def openFileNamesDialog(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        files, _ = QFileDialog.getOpenFileNames(
-            self, "QFileDialog.getOpenFileNames()", "", "All Files (*);;Python Files (*.py)", options=options)
-        if files:
-            print(files)
-
-    def saveFileDialog(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(
-            self, "QFileDialog.getSaveFileName()", "", "All Files (*);;Text Files (*.txt)", options=options)
-        if fileName:
-            print(fileName)
 
 
 if __name__ == '__main__':
