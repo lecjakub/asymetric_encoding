@@ -6,35 +6,85 @@ from PyQt5.QtGui import QIcon
 from PyQt5 import QtCore
 from config import config
 
-class KeyGenModel(QWidget):
-    def __init__(self, parent = None):
-        super().__init__(parent)
-        self.layout : QGridLayout= None
-        self.cb : QComboBox= None
+
+class Model(QWidget):
+    def __init__(self):
+        self.layout = None
         self.setup()
-
-
+        super().__init__()
 
     def setup(self):
-        self.layout = QGridLayout()
-        cb_label = QLabel("Choose asymmetric algorithm")
-        self.layout.addWidget(cb_label, 0, 0)
+        raise NotImplemented
 
+
+class KeyGenModel(Model):
+    def __init__(self):
+        self.cb: QComboBox = None
+        super().__init__()
+
+    def setup(self):
+        self.layout = QVBoxLayout()
+        title = QLabel("Key generation")
+        title.setAlignment(QtCore.Qt.AlignCenter)
+        self.layout.addWidget(title)
+
+        hbox = QHBoxLayout()
+        cb_label = QLabel("Choose asymmetric algorithm")
+        hbox.addWidget(cb_label)
         self.cb = QComboBox()
         self.cb.addItems(config['algorithms']['asymmetric'])
         # self.cb.currentIndexChanged.connect(self.)
-        self.layout.addWidget(self.cb, 0, 1)
+        hbox.addWidget(self.cb)
+        self.layout.addLayout(hbox)
 
+        hbox = QHBoxLayout()
         gen_button = QPushButton("Generate key")
         gen_button.clicked.connect(self.generate_asymmetric_key)
-        self.layout.addWidget(gen_button, 2, 1)
+        hbox.addWidget(gen_button)
+        self.layout.addLayout(hbox)
 
     def generate_asymmetric_key(self):
         options = QFileDialog.Options()
         # options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(
+        filename, _ = QFileDialog.getSaveFileName(
             self, "QFileDialog.getSaveFileName()", "", "All Files (*);;Text Files (*.txt)", options=options)
-        raise NotImplemented
+        # raise NotImplemented
+        if filename:
+            print('saving dummy %s key to %s' % (self.cb.currentText(), filename))
+
+
+class EncryptionModel(Model):
+    def __init__(self):
+        self.symmetric_cb: QComboBox
+        super().__init__()
+
+    def setup(self):
+        self.layout = QVBoxLayout()
+        title = QLabel("Encryption")
+        title.setAlignment(QtCore.Qt.AlignCenter)
+        self.layout.addWidget(title)
+        hbox = QHBoxLayout()
+        symmetric_cb_label = QLabel("Choose symmetric algorithm")
+        hbox.addWidget(symmetric_cb_label)
+        self.symmetric_cb = QComboBox()
+        self.symmetric_cb.addItems(config['algorithms']['symmetric'])
+        hbox.addWidget(self.symmetric_cb)
+        self.layout.addLayout(hbox)
+
+        hbox = QHBoxLayout()
+        encrypt_button = QPushButton('Encrypt file')
+        encrypt_button.clicked.connect(self.encrypt_file)
+        hbox.addWidget(encrypt_button)
+        self.layout.addLayout(hbox)
+
+    def encrypt_file(self):
+        options = QFileDialog.Options()
+        # options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getOpenFileName(
+            self, "QFileDialog.getOpenFileName()", "", "All Files (*);;Python Files (*.py)", options=options)
+        if fileName:
+            print('encrypting %s' % fileName)
+
 
 
 
@@ -49,7 +99,7 @@ class Gui(QWidget):
         self.height = config['gui']['height']
         self.vbox = None
         self.keyGenModel = KeyGenModel()
-
+        self.encryptionModel = EncryptionModel()
         self.initUI()
         self.layout = None
 
@@ -60,20 +110,18 @@ class Gui(QWidget):
 
         vbox = QVBoxLayout()
         vbox.addLayout(self.keyGenModel.layout)
-        vbox.addLayout(self.createEncryptingBox())
+        vbox.addLayout(self.encryptionModel.layout)
         vbox.addLayout(self.createDecryptingBox())
         self.setLayout(vbox)
         # with open('style.css') as styles:
         #     self.setStyleSheet(styles.read())
         self.show()
 
-
     def createEncryptingBox(self):
         hbox = QHBoxLayout()
         okButton = QPushButton("OK")
         hbox.addWidget(okButton)
         return hbox
-
 
     def createDecryptingBox(self):
         hbox = QHBoxLayout()
