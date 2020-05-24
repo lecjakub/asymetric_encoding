@@ -22,6 +22,7 @@ class Header():
         next_key_size = int.from_bytes(file.read(4),'little')
         next_key = file.read(next_key_size)
 
+        file_name = None
         if final:
             file_name_size = int.from_bytes(file.read(4),'little')
             file_name = str(file.read(file_name_size),'ascii')

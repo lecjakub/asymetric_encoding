@@ -2,16 +2,16 @@ from algorithm import Algorithm
 import sympy as sy
 import random
 import math
+from asymkey import AsymKey
 
 class Rsa():
-    def __init__(self,key_bits, private_key=None, public_key=None):
-        #super.__init__(key)
-        if key_bits is None and private_key is None and public_key is None:
-            pass
-            #raise NotImplementedError
-        self.private_key = private_key
-        self.public_key = public_key
-        self.key_bits = key_bits
+    def __init__(self,asym_key):
+        if isinstance(asym_key,AsymKey):
+            self.private_key = asym_key.private_key
+            self.public_key = asym_key.public_key
+            self.key_bits = asym_key.key_size
+        else:
+            self.key_bits = asym_key
 
     def encode(self, byte_stream):
         n, e, key_size = self.public_key
@@ -34,7 +34,7 @@ class Rsa():
             result.extend(x.to_bytes(1,'little'))
         return (result, 0)
 
-    def generate_keys(self):
+    def get_keys(self):
         p, q = self._gen_p_q(self.key_bits)
         n = p * q
         phi = (p-1) * (q-1)
@@ -45,6 +45,21 @@ class Rsa():
         d = self._mod_inverse(e, phi)
         self.public_key = (n, e, self.key_bits)
         self.private_key = (n, d, self.key_bits)
+
+
+    @staticmethod
+    def generate_key(key_bits):
+        p, q = Rsa._gen_p_q(key_bits)
+        n = p * q
+        phi = (p-1) * (q-1)
+        while True:
+            e = random.randrange(2**(key_bits - 1), 2**key_bits)
+            if math.gcd(e, phi) == 1:
+                break
+        d = Rsa._mod_inverse(e, phi)
+        public_key = (n, e, key_bits)
+        private_key = (n, d, key_bits)
+        return AsymKey(key_bits,private_key,public_key)
 
     def load_private_key(self):
         pass
@@ -64,7 +79,8 @@ class Rsa():
     def _lcm(self, a: int, b: int):
         return int(a * b) // int(math.gcd(a, b))
 
-    def _mod_inverse(self, a, m):               
+    @staticmethod
+    def _mod_inverse( a, m):               
         if math.gcd(a, m) != 1:
             return None
         u1, u2, u3 = 1, 0, a
@@ -74,7 +90,8 @@ class Rsa():
             v1, v2, v3, u1, u2, u3 = (u1 - q * v1), (u2 - q * v2), (u3 - q * v3), v1, v2, v3
         return u1 % m
 
-    def _gen_p_q(self, key_bits):
+    @staticmethod
+    def _gen_p_q( key_bits):
         random_prime = lambda: sy.randprime(2**(key_bits - 1), 2**key_bits)
         p = random_prime()
         q = random_prime()
