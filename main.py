@@ -2,6 +2,7 @@ import core
 import algorithms
 import sys
 
+
 ENCRYPT = True
 DECRYPT = True
 
@@ -9,7 +10,7 @@ input_ = sys.argv[1]
 output = sys.argv[2]
 
 
-publicKey, privateKey = algorithms.get_keys(32)
+publicKey, privateKey = algorithms.get_keys(1024)
 
 
 print(publicKey)
