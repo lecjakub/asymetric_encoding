@@ -20,7 +20,7 @@ def encrypt_file(file_path, alg1:Algorithms,key1=None, alg2:Algorithms=None, key
             plug +=b'\0'
 
         prime_alg:Algorithm = alg1.create(key1)
-        encoded_file, prime_key = prime_alg.encode(file.read() + plug)
+        encoded_file, prime_key = prime_alg.encode(file.read() + plug)# ECB require that data is multiple of 16 so plug is used to extend data to nearest multiple of 16
         file_size += plug_size
         
         prime_header = Header(final=True,next_alg=alg1,next_key=prime_key,size_to_decode=file_size,file_name=file_name)
@@ -35,7 +35,7 @@ def encrypt_file(file_path, alg1:Algorithms,key1=None, alg2:Algorithms=None, key
             encoded_file = prime_header.to_bytes() + encoded_file
 
         
-        return encoded_file
+        return encoded_file, plug_size
 
 
 def decrypt_file(file_path, key):
@@ -53,7 +53,7 @@ def decrypt_file(file_path, key):
         inner_alg = inner_header.next_alg.create(inner_header.next_key)
         decrypted_file_data = inner_alg.decode(file.read())
 
-        return decrypted_file_data
+        return decrypted_file_data , inner_header.file_name + "d"
         # decrypted_file = open(inner_header.file_name,"wb")
         # decrypted_file.write(decrypted_file_data)
         # decrypted_file.close()
