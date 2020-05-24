@@ -7,3 +7,7 @@ class Algorithm(ABC):
     @abstractmethod
     def encode(self,data):
         raise NotImplementedError
+
+    @abstractmethod
+    def decode(self,data):
+        raise NotImplementedError

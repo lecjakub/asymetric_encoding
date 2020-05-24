@@ -4,10 +4,13 @@ import random
 import math
 
 class Rsa():
-    def __init__(self,key_bits):
+    def __init__(self,key_bits, private_key=None, public_key=None):
         #super.__init__(key)
-        self.private_key = None
-        self.public_key = None
+        if key_bits is None and private_key is None and public_key is None:
+            pass
+            #raise NotImplementedError
+        self.private_key = private_key
+        self.public_key = public_key
         self.key_bits = key_bits
 
     def encode(self, byte_stream):
@@ -31,7 +34,7 @@ class Rsa():
             result.extend(x.to_bytes(1,'little'))
         return (result, 0)
 
-    def get_keys(self):
+    def generate_keys(self):
         p, q = self._gen_p_q(self.key_bits)
         n = p * q
         phi = (p-1) * (q-1)
@@ -51,6 +54,12 @@ class Rsa():
 
     def load_key(self):
         pass
+
+    def set_public_key(self,pub_key):
+        self.public_key = pub_key
+
+    def set_private_key(self,priv_key):
+        self.private_key = priv_key
 
     def _lcm(self, a: int, b: int):
         return int(a * b) // int(math.gcd(a, b))

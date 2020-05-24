@@ -1,18 +1,24 @@
 import sys
 from rsa import Rsa
-
+from algorithms import Algorithms
+import core
 ENCRYPT = True
 DECRYPT = True
 
-algorithm = Rsa(1024)
-algorithm.get_keys()
+alen = Algorithms.RSA
+algorithm = alen.create(1024)
+algorithm.generate_keys()
 
-sym_key = "haSLO123xd49494"
+file_name = "message.t"
+sym_key = b'1234567890123456'
+print(len(sym_key))
 
-encrypt_key, err = algorithm.encode(map(ord,sym_key))
+encoded_file = core.encrypt_file(file_name,Algorithms.ECB,sym_key,Algorithms.RSA,32)
+print(encoded_file)
+#encrypt_key, err = algorithm.encode(bytes(sym_key))
 
-print(encrypt_key,'\n')
+# print(encrypt_key,'\n')
 
-decrypt_key, err = algorithm.decode(encrypt_key)
+# decrypt_key, err = algorithm.decode(encrypt_key)
 
-print(decrypt_key)
+# print(decrypt_key)
