@@ -1,14 +1,14 @@
 config = {
     'gui':{
-        'width':580,
-        'height':720,
-        'name': "Super fajna apka",
+        'width':300,
+        'height':300,
+        'title': "Niebespiecznik przez *s*",
         'x':100,
         'y':100,
         'stylesheet': "style.css"
     },
     'algorithms':{
-        'asymmetric':['rsa', 'dupa_test1', 'dupa_test2'],
+        'asymmetric':['rsa1024', 'rsa2048', 'dupa_test2'],
         'symmetric' :['chujowe', 'nie', 'polecam']
     }
 }
