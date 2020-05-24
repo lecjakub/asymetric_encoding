@@ -1,20 +1,25 @@
-import math
-import random
-import algorithms
+from algorithms import Algorythms
+from algorithm import Algorithm
+from key import Key
+def encrypt_file(file, alg1:Algorythms,key1:Key=None, alg2:Algorythms=None, key2:Key=None):
+    #alg1 - algorithm used to encode file
+    #key1 - key for algorithm1
+    #alg2 - optional second algorithm used to encode key for alg1
+    #key2 - if alg2 is specified, key2 is key for algorithm2
+    
+    prime_alg:Algorithm = alg1.ctor()(key1)
+    encoded_file, prime_header, prime_key = prime_alg.encode(file)
+
+    if alg2 is not None:
+        second_alg:Algorithm = alg2.ctor()(key2)
+        encoded_header, second_header = second_alg.encode(prime_header,prime_key)
+
+        encoded_file = second_header + encoded_header + encoded_file
+    else:
+        encoded_file = prime_header + encoded_file
+
+    return encoded_file
 
 
-def encrypt_file(input_file , output_file, publicKey):
-    with open(input_file, "rb") as text_file:
-        bytes_stream = text_file.read()
-        encoded = algorithms.encrypt_rsa(bytes_stream, publicKey)
+    
 
-        with open(output_file, 'wb+') as encoded_file:
-            encoded_file.write(encoded)
-
-
-def decrypt_file(input_file : str, output_file: str, privateKey):
-    with open(input_file,"rb") as encoded_file:
-        encoded = encoded_file.read()
-        decoded = algorithms.decrypt_rsa(encoded, privateKey)
-        with open(output_file,'wb+') as decoded_file:
-            decoded_file.write(decoded)

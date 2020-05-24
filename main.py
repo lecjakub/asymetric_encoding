@@ -1,22 +1,18 @@
-import core
-import algorithms
 import sys
+from rsa import Rsa
 
 ENCRYPT = True
 DECRYPT = True
 
-input_ = sys.argv[1]
-output = sys.argv[2]
+algorithm = Rsa(1024)
+algorithm.get_keys()
 
+sym_key = "haSLO123xd49494"
 
-publicKey, privateKey = algorithms.get_keys(32)
+encrypt_key, err = algorithm.encode(map(ord,sym_key))
 
+print(encrypt_key,'\n')
 
-print(publicKey)
-print(privateKey)
+decrypt_key, err = algorithm.decode(encrypt_key)
 
-if ENCRYPT:
-    core.encrypt_file(input_,output,publicKey)
-
-if DECRYPT:
-    core.decrypt_file(output,input_ + 'decoded.txt',privateKey)
+print(decrypt_key)
