@@ -1,6 +1,6 @@
 config = {
     'gui':{
-        'width':350,
+        'width':600,
         'height':300,
         'title': "Niebespiecznik przez *s*",
         'x':100,

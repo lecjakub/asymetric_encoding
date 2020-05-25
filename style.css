@@ -1,3 +1,15 @@
+QMainWindow {
+    background-color: black;
+    color: green;
+}
+
 * {
-    background-color: pink;
+background-color: black;
+    color: lime;
+    padding: 5px;
+}
+
+QLabel {
+    font-size: 20px;
+    font-family: "consolas";
 }
