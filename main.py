@@ -24,6 +24,7 @@ encoded_file = open(encoded_file_name,"wb")
 encoded_file.write(encoded_file_data)
 encoded_file.close()
 
+publicKey, privateKey = algorithms.get_keys(1024)
 
 decoded_file_data, dfile_name = core.decrypt_file(encoded_file_name,asym_key)
 #print(str(decoded_file_data,'ascii'))
