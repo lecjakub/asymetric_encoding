@@ -1,20 +1,59 @@
-import math
-import random
-import algorithms
+from algorithms import Algorithms
+from header import Header
+from symkey import SymKey
+from asymkey import AsymKey
+import os
+from io import BytesIO
+
+def encrypt_file(file_path, alg1:Algorithms,key1:SymKey=None, alg2:Algorithms=None, key2:AsymKey=None):
+    #alg1 - algorithm used to encode file
+    #key1 - key for algorithm1
+    #alg2 - optional second algorithm used to encode key for alg1
+    #key2 - if alg2 is specified, key2 is key for algorithm2
+
+    with open(file_path,"rb") as file:
+        file_name = os.path.basename(file_path)
+        file_size = os.stat(file_path).st_size
+        plug_size = (16 - (file_size % 16)) % 16
+        plug = b''
+        for _ in range(plug_size):
+            plug +=b'\0'
+
+        prime_alg:Algorithm = alg1.create(key1)
+        encoded_file = prime_alg.encode(file.read() + plug)# ECB require that data is multiple of 16 so plug is used to extend data to nearest multiple of 16
+        file_size += plug_size
+        
+        prime_header = Header(final=True,next_alg=alg1,next_key=key1.key,size_to_decode=file_size,file_name=file_name,plug_size=plug_size,init_vector=key1.init_vector,counter=key1.counter)
+
+        if alg2 is not None:
+            second_alg:Algorithm = alg2.create(key2)
+            encoded_header = second_alg.encode(prime_header.to_bytes())
+            second_header = Header(final=False,next_alg=alg2,next_key=b'',size_to_decode=len(encoded_header))
+
+            encoded_file = second_header.to_bytes() + encoded_header + encoded_file
+        else:
+            encoded_file = prime_header.to_bytes() + encoded_file
+
+        
+        return encoded_file
 
 
-def encrypt_file(input_file , output_file, publicKey):
-    with open(input_file, "rb") as text_file:
-        bytes_stream = text_file.read()
-        encoded = algorithms.encrypt_rsa(bytes_stream, publicKey)
+def decrypt_file(file_path, key):
+    with open(file_path,"rb") as file:
+        outer_header = Header.from_file(file)
+        outer_alg = outer_header.next_alg.create(key)
 
-        with open(output_file, 'wb+') as encoded_file:
-            encoded_file.write(encoded)
+        inner_header_data, error = outer_alg.decode(file.read(outer_header.size_to_decode))
+        if error:
+            raise ArithmeticError
+
+        inner_header = Header.from_file(BytesIO(inner_header_data))
+        inner_key = SymKey.from_header(inner_header)
+        inner_alg = inner_header.next_alg.create(inner_key)
+        decrypted_file_data = inner_alg.decode(file.read())
+
+        return decrypted_file_data[:-inner_header.plug_size] , inner_header.file_name + "d"
 
 
-def decrypt_file(input_file : str, output_file: str, privateKey):
-    with open(input_file,"rb") as encoded_file:
-        encoded = encoded_file.read()
-        decoded = algorithms.decrypt_rsa(encoded, privateKey)
-        with open(output_file,'wb+') as decoded_file:
-            decoded_file.write(decoded)
+    
+
