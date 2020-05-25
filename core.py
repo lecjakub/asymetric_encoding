@@ -1,11 +1,11 @@
 from algorithms import Algorithms
-from algorithm import Algorithm
-from key import Key
 from header import Header
+from symkey import SymKey
+from asymkey import AsymKey
 import os
 from io import BytesIO
 
-def encrypt_file(file_path, alg1:Algorithms,key1=None, alg2:Algorithms=None, key2=None):
+def encrypt_file(file_path, alg1:Algorithms,key1:SymKey=None, alg2:Algorithms=None, key2:AsymKey=None):
     #alg1 - algorithm used to encode file
     #key1 - key for algorithm1
     #alg2 - optional second algorithm used to encode key for alg1
@@ -20,14 +20,14 @@ def encrypt_file(file_path, alg1:Algorithms,key1=None, alg2:Algorithms=None, key
             plug +=b'\0'
 
         prime_alg:Algorithm = alg1.create(key1)
-        encoded_file, prime_key = prime_alg.encode(file.read() + plug)# ECB require that data is multiple of 16 so plug is used to extend data to nearest multiple of 16
+        encoded_file = prime_alg.encode(file.read() + plug)# ECB require that data is multiple of 16 so plug is used to extend data to nearest multiple of 16
         file_size += plug_size
         
-        prime_header = Header(final=True,next_alg=alg1,next_key=prime_key,size_to_decode=file_size,file_name=file_name)
+        prime_header = Header(final=True,next_alg=alg1,next_key=key1.key,size_to_decode=file_size,file_name=file_name,plug_size=plug_size,init_vector=key1.init_vector,counter=key1.counter)
 
         if alg2 is not None:
             second_alg:Algorithm = alg2.create(key2)
-            encoded_header, second_key = second_alg.encode(prime_header.to_bytes())
+            encoded_header = second_alg.encode(prime_header.to_bytes())
             second_header = Header(final=False,next_alg=alg2,next_key=b'',size_to_decode=len(encoded_header))
 
             encoded_file = second_header.to_bytes() + encoded_header + encoded_file
@@ -35,13 +35,12 @@ def encrypt_file(file_path, alg1:Algorithms,key1=None, alg2:Algorithms=None, key
             encoded_file = prime_header.to_bytes() + encoded_file
 
         
-        return encoded_file, plug_size
+        return encoded_file
 
 
 def decrypt_file(file_path, key):
     with open(file_path,"rb") as file:
         outer_header = Header.from_file(file)
-        print(file.tell())
         outer_alg = outer_header.next_alg.create(key)
 
         inner_header_data, error = outer_alg.decode(file.read(outer_header.size_to_decode))
@@ -49,14 +48,11 @@ def decrypt_file(file_path, key):
             raise ArithmeticError
 
         inner_header = Header.from_file(BytesIO(inner_header_data))
-
-        inner_alg = inner_header.next_alg.create(inner_header.next_key)
+        inner_key = SymKey.from_header(inner_header)
+        inner_alg = inner_header.next_alg.create(inner_key)
         decrypted_file_data = inner_alg.decode(file.read())
 
-        return decrypted_file_data , inner_header.file_name + "d"
-        # decrypted_file = open(inner_header.file_name,"wb")
-        # decrypted_file.write(decrypted_file_data)
-        # decrypted_file.close()
+        return decrypted_file_data[:-inner_header.plug_size] , inner_header.file_name + "d"
 
 
     

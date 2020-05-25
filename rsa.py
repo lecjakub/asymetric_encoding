@@ -1,17 +1,18 @@
-from algorithm import Algorithm
+
 import sympy as sy
 import random
 import math
 from asymkey import AsymKey
 
 class Rsa():
-    def __init__(self,asym_key):
-        if isinstance(asym_key,AsymKey):
-            self.private_key = asym_key.private_key
-            self.public_key = asym_key.public_key
-            self.key_bits = asym_key.key_size
+    def __init__(self,key):
+        if isinstance(key,AsymKey):
+            self.private_key = key.private_key
+            self.public_key = key.public_key
+            self.key_bits = key.key_size
         else:
-            self.key_bits = asym_key
+            self.key_bits = key
+            self.init_keys()
 
     def encode(self, byte_stream):
         n, e, key_size = self.public_key
@@ -20,7 +21,7 @@ class Rsa():
         for i in byte_stream:
             x = pow(i, e, n)
             result.extend(x.to_bytes(resolution, 'little'))
-        return (result, 0)
+        return result
 
     def decode(self, byte_stream):
         n, d, key_size = self.private_key
@@ -34,7 +35,7 @@ class Rsa():
             result.extend(x.to_bytes(1,'little'))
         return (result, 0)
 
-    def get_keys(self):
+    def init_keys(self):
         p, q = self._gen_p_q(self.key_bits)
         n = p * q
         phi = (p-1) * (q-1)
@@ -45,7 +46,6 @@ class Rsa():
         d = self._mod_inverse(e, phi)
         self.public_key = (n, e, self.key_bits)
         self.private_key = (n, d, self.key_bits)
-
 
     @staticmethod
     def generate_key(key_bits):
@@ -60,15 +60,6 @@ class Rsa():
         public_key = (n, e, key_bits)
         private_key = (n, d, key_bits)
         return AsymKey(key_bits,private_key,public_key)
-
-    def load_private_key(self):
-        pass
-
-    def load_public_key(self):
-        pass
-
-    def load_key(self):
-        pass
 
     def set_public_key(self,pub_key):
         self.public_key = pub_key
