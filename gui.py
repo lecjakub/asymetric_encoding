@@ -1,11 +1,27 @@
 from __future__ import unicode_literals
 
 import sys
+from rsa import Rsa
 from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QComboBox, QPushButton, QFileDialog
 from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtCore import Qt
 from config import config
 import ntpath
+from datetime import date
+from asymkey import AsymKey
+from core import encrypt_files, decrypt_files
+
+def get_directory_to_save(title):
+    options = QFileDialog.Options()
+    options |= QFileDialog.DontUseNativeDialog
+    directory = QFileDialog.getExistingDirectory(None, caption=title, options=options)
+    return directory
+
+def get_file_to_save(title):
+    options = QFileDialog.Options()
+    options |= QFileDialog.DontUseNativeDialog
+    filename, _ = QFileDialog.getSaveFileName(None, caption=title, options=options)
+    return filename
 
 def path_leaf(path : str):
     head, tail = ntpath.split(path)
@@ -36,7 +52,19 @@ class KeyGeneration(QWidget):
         self.setLayout(vbox)
 
     def generate_keys(self):
-        print("generating keys for %s" % self.asymmetric_algorithms.currentText())
+        choosen_asymmetric_algorithm = self.asymmetric_algorithms.currentText()
+        if choosen_asymmetric_algorithm == 'rsa1024':
+            asym_key = Rsa.generate_key(1024)
+        elif choosen_asymmetric_algorithm == 'rsa2048':
+            asym_key = Rsa.generate_key(2048)
+        else:
+            raise TypeError("Unknown algorithm")
+        
+        save_dir_path = get_file_to_save('Choose file to save key')
+        with open(save_dir_path, "wb") as private_key_file:          
+            private_key_file.write(asym_key.private_to_bytes())
+        with open(save_dir_path + '.pub', "wb") as public_key_file:
+            public_key_file.write(asym_key.public_to_bytes())
 
 class Encryption(QWidget):
     def __init__(self, *args, **kwargs):
@@ -57,7 +85,7 @@ class Encryption(QWidget):
         # choosing symmetric algorithm
         hbox = QHBoxLayout()
         hbox.addWidget(QLabel("Choose symmetric algorithm:"))
-        self.symmetric_combobox = QComboBox();
+        self.symmetric_combobox = QComboBox()
         self.symmetric_combobox.addItems(config['algorithms']['symmetric'])
         hbox.addWidget(self.symmetric_combobox)
         vbox.addLayout(hbox)
@@ -101,7 +129,8 @@ class Encryption(QWidget):
 
     def encrypt_files(self):
         if len(self.files_to_encrypt) and self.public_key_path:
-            print("Encrypting files")
+            current_symmetric_algorithm = self.symmetric_combobox.currentText()
+            encrypt_files(file_paths=self.files_to_encrypt, public_key_path=self.public_key_path, alg_sym=current_symmetric_algorithm)
         if len(self.files_to_encrypt) == 0:
             print("No files given")
         if self.public_key_path is None:
@@ -159,7 +188,7 @@ class Decryption(QWidget):
 
     def decrypt_files(self):
         if len(self.files_to_decrypt) and self.private_key_path:
-            print("Decrypting files")
+            decrypt_files(file_paths=self.files_to_decrypt, private_key_path=self.private_key_path)
         if len(self.files_to_decrypt) == 0:
             print("No files to decrypt given")
         if self.private_key_path is None:

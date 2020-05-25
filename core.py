@@ -5,7 +5,38 @@ from asymkey import AsymKey
 import os
 from io import BytesIO
 
-def encrypt_file(file_path, alg1:Algorithms,key1:SymKey=None, alg2:Algorithms=None, key2:AsymKey=None):
+
+def encrypt_files(file_paths:list, public_key_path:str,alg_sym:str):
+    with open(public_key_path, "rb") as pub_file:
+        public_key = AsymKey.public_from_file(pub_file)
+        asym_key = AsymKey(key_size=public_key[2], public_key=public_key)
+        alg_dict = {
+            'ecb': Algorithms.ECB,
+            'cbc': Algorithms.CBC,
+            'ctr': Algorithms.CTR,
+        }
+        alg1 = alg_dict[alg_sym]
+        
+        for file_path in file_paths:
+            encrypted_data = __encrypt_file(file_path, alg1, alg2=Algorithms.RSA, key2=asym_key)
+            with open(file_path+".enc",'wb') as enc_file:
+                enc_file.write(encrypted_data)
+            
+
+
+def decrypt_files(file_paths:list, private_key_path:str):
+    with open(private_key_path, "rb") as priv_file:
+        private_key = AsymKey.private_from_file(priv_file)
+        asym_key = AsymKey(key_size=private_key[2], private_key=private_key)
+        for file_path in file_paths:
+            decrypted_data, file_name = decrypt_file(file_path,asym_key)
+            dir_path = os.path.dirname(file_path)
+            with open(dir_path + "/" + file_name, 'wb') as dec_file:
+                dec_file.write(decrypted_data)
+
+
+
+def __encrypt_file(file_path, alg1:Algorithms,key1:SymKey=None, alg2:Algorithms=None, key2:AsymKey=None):
     #alg1 - algorithm used to encode file
     #key1 - key for algorithm1
     #alg2 - optional second algorithm used to encode key for alg1
@@ -19,6 +50,8 @@ def encrypt_file(file_path, alg1:Algorithms,key1:SymKey=None, alg2:Algorithms=No
         for _ in range(plug_size):
             plug +=b'\0'
 
+        if key1 is None:        
+            key1 = alg1.get_type.generate_key(32)
         prime_alg:Algorithm = alg1.create(key1)
         encoded_file = prime_alg.encode(file.read() + plug)# ECB require that data is multiple of 16 so plug is used to extend data to nearest multiple of 16
         file_size += plug_size
@@ -52,8 +85,5 @@ def decrypt_file(file_path, key):
         inner_alg = inner_header.next_alg.create(inner_key)
         decrypted_file_data = inner_alg.decode(file.read())
 
-        return decrypted_file_data[:-inner_header.plug_size] , inner_header.file_name + "d"
-
-
-    
+        return decrypted_file_data[:-inner_header.plug_size] , inner_header.file_name
 

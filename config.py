@@ -9,6 +9,6 @@ config = {
     },
     'algorithms':{
         'asymmetric':['rsa1024', 'rsa2048'],
-        'symmetric' :['ecb', 'cbd']
+        'symmetric' :['ecb', 'cbc', 'ctr']
     }
 }
