@@ -5,6 +5,11 @@ from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog, QLineEdit, QFil
 from PyQt5.QtGui import QIcon
 from PyQt5 import QtCore
 from config import config
+import ntpath
+
+def path_leaf(path : str):
+    head, tail = ntpath.split(path)
+    return tail or ntpath.basename(head)
 
 
 class Model(QWidget):
@@ -28,6 +33,7 @@ class KeyGenModel(Model):
         title.setAlignment(QtCore.Qt.AlignCenter)
         self.layout.addWidget(title)
 
+        # choosing asymmetric algorithm in combobox
         hbox = QHBoxLayout()
         cb_label = QLabel("Choose asymmetric algorithm")
         hbox.addWidget(cb_label)
@@ -37,6 +43,7 @@ class KeyGenModel(Model):
         hbox.addWidget(self.cb)
         self.layout.addLayout(hbox)
 
+        # button signaling generation of files with public and private key
         hbox = QHBoxLayout()
         gen_button = QPushButton("Generate key")
         gen_button.clicked.connect(self.generate_asymmetric_key)
@@ -48,7 +55,6 @@ class KeyGenModel(Model):
         # options |= QFileDialog.DontUseNativeDialog
         filename, _ = QFileDialog.getSaveFileName(
             self, "QFileDialog.getSaveFileName()", "", "All Files (*);;Text Files (*.txt)", options=options)
-        # raise NotImplemented
         if filename:
             print('saving dummy %s key to %s' %
                   (self.cb.currentText(), filename))
@@ -58,6 +64,8 @@ class KeyGenModel(Model):
 class EncryptionModel(Model):
     def __init__(self):
         self.symmetric_cb: QComboBox
+        self.public_key_label:QLabel
+        self.public_key_path:str
         super().__init__()
 
     def setup(self):
@@ -65,6 +73,8 @@ class EncryptionModel(Model):
         title = QLabel("Encryption")
         title.setAlignment(QtCore.Qt.AlignCenter)
         self.layout.addWidget(title)
+
+        # choosing symmetric algorithm from combobox
         hbox = QHBoxLayout()
         symmetric_cb_label = QLabel("Choose symmetric algorithm")
         hbox.addWidget(symmetric_cb_label)
@@ -73,15 +83,31 @@ class EncryptionModel(Model):
         hbox.addWidget(self.symmetric_cb)
         self.layout.addLayout(hbox)
 
-        # hbox = QHBoxLayout()
+        # loading public key file
+        hbox = QHBoxLayout()
+        self.public_key_label = QLabel("Public key file")
+        hbox.addWidget(self.public_key_label)
+        public_key_button = QPushButton("Load public key")
+        public_key_button.clicked.connect(self.load_public_key)
+        hbox.addWidget(public_key_button)
+        self.layout.addLayout(hbox)         
 
+        # button signaling ecryption action
         hbox = QHBoxLayout()
         encrypt_button = QPushButton('Encrypt file')
-        encrypt_button.clicked.connect(self.encrypt_file)
+        encrypt_button.clicked.connect(self.load_file_to_encrypt)
         hbox.addWidget(encrypt_button)
         self.layout.addLayout(hbox)
 
-    def encrypt_file(self):
+    def load_public_key(self):
+        options = QFileDialog.Options()
+        self.public_key_path, _ = QFileDialog.getOpenFileName(self, "Load public key", options=options)
+        if self.public_key_path:
+            filename = path_leaf(self.public_key_path)
+            self.public_key_label.setText(filename)
+            print('public key %s loaded' % self.public_key_path)
+
+    def load_file_to_encrypt(self):
         options = QFileDialog.Options()
         # options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getOpenFileName(
@@ -94,6 +120,8 @@ class DecryptionModel(Model):
     def __init__(self):
         self.encrypted_file_label:QLabel = None
         self.encrypted_file_path: str = None
+        self.private_key_label:QLabel = None
+        self.private_key_path:str = None
         super().__init__()
 
     def setup(self):
@@ -102,21 +130,56 @@ class DecryptionModel(Model):
         title.setAlignment(QtCore.Qt.AlignCenter)
         self.layout.addWidget(title)
 
+        # picking encrypted file
         hbox = QHBoxLayout()
-        self.encrypted_file_label = QLabel("File to decrypt")
+        self.encrypted_file_label = QLabel("Encrypted file")
         hbox.addWidget(self.encrypted_file_label)
         encrypted_button = QPushButton("Pick encrypted file")
-        encrypted_button.clicked.connect(self.pick_file_to_decrypt)
+        encrypted_button.clicked.connect(self.pick_encrypted_file)
         hbox.addWidget(encrypted_button)
         self.layout.addLayout(hbox)
 
+        # loading private key file
         hbox = QHBoxLayout()
+        self.private_key_label = QLabel("Private key file")
+        hbox.addWidget(self.private_key_label)
+        private_key_button = QPushButton("Load private key")
+        private_key_button.clicked.connect(self.load_private_key)
+        hbox.addWidget(private_key_button)
+        self.layout.addLayout(hbox)         
 
-        # decrypt_button = QPushButton(
+        # button running decryption
+        hbox = QHBoxLayout() 
+        decrypting_button = QPushButton("Decrypt file")
+        decrypting_button.clicked.connect(self.decryption)
+        hbox.addWidget(decrypting_button) 
+        self.layout.addLayout(hbox)
 
-    def pick_file_to_decrypt(self):
-        pass
+    def load_private_key(self):
+        options = QFileDialog.Options()
+        filename, _ = QFileDialog.getOpenFileName(
+            self, "Choose file with private key")
+        if filename:
+            self.private_key_path = path_leaf(filename)
+            self.private_key_label.setText(self.private_key_path)
 
+    def pick_encrypted_file(self):
+        options = QFileDialog.Options()
+        # options |= QFileDialog.DontUseNativeDialog
+        filename, _ = QFileDialog.getOpenFileName(
+            self, "Choose file you want to decrypt", "", "All Files (*);;Python Files (*.py)", options=options)
+        if filename:
+            self.encrypted_file_path = path_leaf(filename)
+            self.encrypted_file_label.setText(self.encrypted_file_path)
+
+    
+    def decryption(self):
+        if self.private_key_path and self.encrypted_file_path:
+            print("Decrypting %s with key %s" %(self.encrypted_file_path, self.private_key_path))
+        if self.private_key_path is None:
+            print("Private key not given")
+        if self.encrypted_file_path is None:
+            print("Encrypted file not given")
 
 
 class Gui(QWidget):
@@ -145,8 +208,8 @@ class Gui(QWidget):
         vbox.addLayout(self.encryptionModel.layout)
         vbox.addLayout(self.decryptionModel.layout)
         self.setLayout(vbox)
-        # with open('style.css') as styles:
-        #     self.setStyleSheet(styles.read())
+        with open('style.css') as styles:
+            self.setStyleSheet(styles.read())
         self.show()
 
 
