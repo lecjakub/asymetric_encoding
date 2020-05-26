@@ -1,6 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFileDialog
 from PyQt5.QtCore import Qt
-import encrypting.gui.dialogs as dialogs
 
 class GuiDecryption(QWidget):
     def __init__(self, *args, **kwargs):

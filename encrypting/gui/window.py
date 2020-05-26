@@ -8,9 +8,9 @@ from PyQt5.QtCore import Qt
 from encrypting.config import config
 import ntpath
 from datetime import date
-from .key_generation import GuiKeyGeneration
-from .encryption import GuiEncryption
+from .encryption import EncryptionDialog
 from .decryption import GuiDecryption
+from .keys_generation import AsymmetricKeyGenerationDialog
 
          
 class Color(QWidget):
@@ -29,16 +29,16 @@ class Window(QMainWindow):
         # with open('style.css') as styles:
         #     self.setStyleSheet(styles.read())
         self.setWindowTitle(config['gui']['title']) 
-        self.setFixedSize(
-            config['gui']['width'],
-            config['gui']['height']
-        )
+        # self.setFixedSize(
+        #     config['gui']['width'],
+        #     config['gui']['height']
+        # )
 
         vbox = QVBoxLayout()
-        vbox.addWidget(GuiKeyGeneration())
+        vbox.addWidget(AsymmetricKeyGenerationDialog())
 
         hbox = QHBoxLayout()
-        hbox.addWidget(GuiEncryption())
+        hbox.addWidget(EncryptionDialog())
         hbox.addWidget(GuiDecryption())
         vbox.addLayout(hbox)
         central = QWidget()

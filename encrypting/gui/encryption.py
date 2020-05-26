@@ -1,10 +1,9 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QComboBox, QPushButton, QLabel, QFileDialog
 from PyQt5.QtCore import Qt
 from encrypting.config import config
-import encrypting.gui.dialogs as dialogs
 
 
-class GuiEncryption(QWidget):
+class EncryptionDialog(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args ,**kwargs)
         self.symmetric_combobox :QComboBox = None
