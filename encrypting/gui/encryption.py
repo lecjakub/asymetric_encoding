@@ -54,7 +54,7 @@ class GuiEncryption(QWidget):
         options |= QFileDialog.DontUseNativeDialog
         self.public_key_path, _ = QFileDialog.getOpenFileName(self, "Loading public key")
         if self.public_key_path:
-            filename = dialogs.path_leaf(self.public_key_path)
+            filename = dialogs.file_from_path(self.public_key_path)
             self.public_key_label.setText(filename)
 
     def load_files_to_encrypt(self):

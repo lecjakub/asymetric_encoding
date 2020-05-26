@@ -41,7 +41,7 @@ class GuiDecryption(QWidget):
         options |= QFileDialog.DontUseNativeDialog
         self.private_key_path, _ = QFileDialog.getOpenFileName(self, "Loading public key")
         if self.private_key_path:
-            filename = dialogs.path_leaf(self.private_key_path)
+            filename = dialogs.file_from_path(self.private_key_path)
             self.private_key_label.setText(filename)
 
     def load_files_to_decrypt(self):
