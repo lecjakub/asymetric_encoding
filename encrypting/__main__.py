@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QApplication
 import sys
 
 app = QApplication(sys.argv)
-app.setStyle('Windows')
+# app.setStyle('Windows')
 window = Window()
 window.show()
 sys.exit(app.exec_())
