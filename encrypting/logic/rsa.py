@@ -2,7 +2,7 @@
 import sympy as sy
 import random
 import math
-from asymkey import AsymKey
+from encrypting.logic.asymkey import AsymKey
 
 class Rsa():
     def __init__(self,key):

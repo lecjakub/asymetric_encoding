@@ -1,26 +1,25 @@
 from __future__ import unicode_literals
 
 import sys
-from rsa import Rsa
+from encrypting.logic.rsa import Rsa
 from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QComboBox, QPushButton, QFileDialog
 from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtCore import Qt
-from config import config
+from encrypting.config import config
 import ntpath
 from datetime import date
-from asymkey import AsymKey
-from core import encrypt_files, decrypt_files
 
-def get_directory_to_save(title):
+
+def get_directory_to_save(caption):
     options = QFileDialog.Options()
     options |= QFileDialog.DontUseNativeDialog
-    directory = QFileDialog.getExistingDirectory(None, caption=title, options=options)
+    directory = QFileDialog.getExistingDirectory(None, caption=caption, options=options)
     return directory
 
-def get_file_to_save(title):
+def get_file_to_save(caption):
     options = QFileDialog.Options()
     options |= QFileDialog.DontUseNativeDialog
-    filename, _ = QFileDialog.getSaveFileName(None, caption=title, options=options)
+    filename, _ = QFileDialog.getSaveFileName(None, caption=caption, options=options)
     return filename
 
 def path_leaf(path : str):
@@ -203,10 +202,10 @@ class Color(QWidget):
         palette.setColor(QPalette.Window, QColor(color))
         self.setPalette(palette)
 
-class Gui(QMainWindow):
+class Window(QMainWindow):
 
     def __init__(self, *args, **kwargs):
-        super(Gui, self).__init__(*args, **kwargs)
+        super(Window, self).__init__(*args, **kwargs)
         # with open('style.css') as styles:
         #     self.setStyleSheet(styles.read())
         self.setWindowTitle(config['gui']['title']) 
@@ -219,18 +218,11 @@ class Gui(QMainWindow):
         vbox.addWidget(KeyGeneration())
 
         hbox = QHBoxLayout()
-        hbox.addWidget(Encryption())
-        hbox.addWidget(Decryption())
-        vbox.addLayout(hbox)
+        # hbox.addWidget(Encryption())
+        # hbox.addWidget(Decryption())
+        # vbox.addLayout(hbox)
         central = QWidget()
         central.setLayout(vbox)
         self.setCentralWidget(central)
 
 
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    app.setStyle('Windows')
-    window = Gui()
-    window.show()
-    sys.exit(app.exec_())

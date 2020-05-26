@@ -1,7 +1,7 @@
-from algorithms import Algorithms
-from header import Header
-from symkey import SymKey
-from asymkey import AsymKey
+from encrypting.logic.algorithms import Algorithms
+from encrypting.logic.header import Header
+from encrypting.logic.symkey import SymKey
+from encrypting.logic.asymkey import AsymKey
 import os
 from io import BytesIO
 

@@ -1,8 +1,8 @@
 import enum
-from rsa import Rsa
-from ecb import Ecb
-from cbc import Cbc
-from ctr import Ctr
+from encrypting.logic.rsa import Rsa
+from encrypting.logic.ecb import Ecb
+from encrypting.logic.cbc import Cbc
+from encrypting.logic.ctr import Ctr
 
 class Algorithms(enum.Enum):
     RSA = 0

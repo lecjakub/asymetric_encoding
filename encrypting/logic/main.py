@@ -1,11 +1,11 @@
 import sys
-from rsa import Rsa
-from ecb import Ecb
-from cbc import Cbc
-from ctr import Ctr
-from algorithms import Algorithms
-from asymkey import AsymKey
-import core
+from encrypting.logic.rsa import Rsa
+from encrypting.logic.ecb import Ecb
+from encrypting.logic.cbc import Cbc
+from encrypting.logic.ctr import Ctr
+from encrypting.logic.algorithms import Algorithms
+from encrypting.logic.asymkey import AsymKey
+import encrypting.logic.core as core
 ENCRYPT = True
 DECRYPT = True
 

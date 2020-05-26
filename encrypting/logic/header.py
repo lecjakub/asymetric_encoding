@@ -1,4 +1,4 @@
-from algorithms import Algorithms
+from encrypting.logic.algorithms import Algorithms
 class Header():
     def __init__(self,final, next_alg, next_key, size_to_decode, file_name=None, plug_size=0,init_vector=None,counter=None):
         self.final = final
