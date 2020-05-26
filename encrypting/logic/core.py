@@ -4,9 +4,10 @@ from encrypting.logic.symkey import SymKey
 from encrypting.logic.asymkey import AsymKey
 import os
 from io import BytesIO
+from encrypting.gui.helpers import file_from_path
 
 
-def encrypt_files(file_paths:list, public_key_path:str,alg_sym:str):
+def encrypt_files(file_paths:list,destination_dir:str, public_key_path:str,alg_sym:str):
     with open(public_key_path, "rb") as pub_file:
         public_key = AsymKey.public_from_file(pub_file)
         asym_key = AsymKey(key_size=public_key[2], public_key=public_key)
@@ -19,19 +20,19 @@ def encrypt_files(file_paths:list, public_key_path:str,alg_sym:str):
         
         for file_path in file_paths:
             encrypted_data = __encrypt_file(file_path, alg1, alg2=Algorithms.RSA, key2=asym_key)
-            with open(file_path+".enc",'wb') as enc_file:
+            filename = file_from_path(file_path)
+            with open(destination_dir + '/' + filename+".enc",'wb') as enc_file:
                 enc_file.write(encrypted_data)
             
 
 
-def decrypt_files(file_paths:list, private_key_path:str):
+def decrypt_files(file_paths:list,destination_dir:str, private_key_path:str):
     with open(private_key_path, "rb") as priv_file:
         private_key = AsymKey.private_from_file(priv_file)
         asym_key = AsymKey(key_size=private_key[2], private_key=private_key)
         for file_path in file_paths:
             decrypted_data, file_name = decrypt_file(file_path,asym_key)
-            dir_path = os.path.dirname(file_path)
-            with open(dir_path + "/" + file_name, 'wb') as dec_file:
+            with open(destination_dir + "/" + file_name, 'wb') as dec_file:
                 dec_file.write(decrypted_data)
 
 
