@@ -1,0 +1,17 @@
+
+QMainWindow {
+    background-color: fuchsia;
+    color: lime;
+    padding: 5px;
+    font-size:5em;
+}
+
+QDialog {
+    
+    background-color: pink;
+}
+
+* {
+    font-size: 20px;
+    font-family: Comic Sans MS;
+}
