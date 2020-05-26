@@ -4,6 +4,13 @@ from encrypting.logic.ecb import Ecb
 from encrypting.logic.cbc import Cbc
 from encrypting.logic.ctr import Ctr
 
+def generate_asymmetric_key(algorithm:str):
+    keys = {
+        'rsa1024': lambda: Rsa.generate_key(1024),
+        'rsa2048': lambda: Rsa.generate_key(2048)
+    }
+    return keys[algorithm]()
+
 class Algorithms(enum.Enum):
     RSA = 0
     ECB = 1
