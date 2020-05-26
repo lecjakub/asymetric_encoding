@@ -9,18 +9,8 @@ from encrypting.config import config
 import ntpath
 from datetime import date
 from .encryption import EncryptionDialog
-from .decryption import GuiDecryption
+from .decryption import DecryptionDialog
 from .keys_generation import AsymmetricKeyGenerationDialog
-
-         
-class Color(QWidget):
-    def __init__(self, color, *args, **kwargs):
-        super(Color, self).__init__(*args, **kwargs)
-        self.setAutoFillBackground(True)
-        
-        palette = self.palette()
-        palette.setColor(QPalette.Window, QColor(color))
-        self.setPalette(palette)
 
 class Window(QMainWindow):
 
@@ -39,7 +29,7 @@ class Window(QMainWindow):
 
         hbox = QHBoxLayout()
         hbox.addWidget(EncryptionDialog())
-        hbox.addWidget(GuiDecryption())
+        hbox.addWidget(DecryptionDialog())
         vbox.addLayout(hbox)
         central = QWidget()
         central.setLayout(vbox)

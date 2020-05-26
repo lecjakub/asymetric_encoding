@@ -1,61 +1,76 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFileDialog
-from PyQt5.QtCore import Qt
-
-class GuiDecryption(QWidget):
+from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QLineEdit, QGroupBox, QFormLayout, QVBoxLayout, QLabel, QPushButton, QMessageBox
+from encrypting.gui.helpers import existing_directory, open_multiple_files, open_file
+from encrypting.logic.core import decrypt_files
+class DecryptionDialog(QDialog):
     def __init__(self, *args, **kwargs):
-        super(GuiDecryption, self).__init__(*args, **kwargs)
-        self.private_key_path:str = None
-        self.private_key_label:QLabel = None
-        self.files_to_decrypt = []
+        super().__init__(*args, **kwargs)
+        self.privateKey = QLineEdit()
+        self.privateKey.setPlaceholderText('Path to private key file')
+        self.filesCounter = QLabel("Files loaded: 0")
+        self.files = []
+        self.createFormGroupBox()
 
-        vbox = QVBoxLayout()
-        title = QLabel("Decrypting")
-        title.setAlignment(Qt.AlignCenter)
-        vbox.addWidget(title)
-        
-        # loading private key
-        hbox = QHBoxLayout()
-        self.private_key_label = QLabel("Private key file")
-        hbox.addWidget(self.private_key_label)
-        private_key_button = QPushButton("Load private key")
-        private_key_button.clicked.connect(self.load_private_key)
-        hbox.addWidget(private_key_button)
-        vbox.addLayout(hbox)
-    
-        # choosing files to decrypt
-        files_to_decrypt_button = QPushButton("Choose files")
-        files_to_decrypt_button.clicked.connect(self.load_files_to_decrypt)
-        vbox.addWidget(files_to_decrypt_button)
-        
-        # button for decrypting action
-        decrypting_button = QPushButton("Decrypt files")
-        decrypting_button.clicked.connect(self.decrypt_files)
-        vbox.addWidget(decrypting_button)
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
+        buttonBox.button(QDialogButtonBox.Ok).setText('Decrypt')
+        buttonBox.accepted.connect(self.decrypt)
+
+        mainLayout = QVBoxLayout()
+        mainLayout.addWidget(self.formGroupBox)
+        mainLayout.addWidget(buttonBox)
+        self.setLayout(mainLayout)
+
+    def reject(self):
+        """To avoid closing on esc press"""
+        pass
+
+    def createFormGroupBox(self):
+        self.formGroupBox = QGroupBox("Decryption")
+        layout = QFormLayout()
+        loadFilesButton = QPushButton('Load files to decrypt')
+        loadFilesButton.clicked.connect(self.loadFiles)
+        layout.addRow(self.filesCounter, loadFilesButton)
+        loadPrivateKeyButton = QPushButton('Load private key')
+        loadPrivateKeyButton.clicked.connect(self.loadPrivateKey)
+        layout.addRow(self.privateKey, loadPrivateKeyButton)
+        self.formGroupBox.setLayout(layout)
+
+    def loadFiles(self):
+        self.files = open_multiple_files('Choose files to decrypt')
+        if len(self.files) > 0:
+            self.filesCounter.setText('Files loaded: %d' % len(self.files))
+
+    def loadPrivateKey(self):
+        filename = open_file('Open private key file')
+        if filename is not None:
+            self.privateKey.setText(filename)
 
 
-        self.setLayout(vbox)
+    def decrypt(self):
+        if len(self.files) > 0 and len(self.privateKey.text()) > 0:
+            destination_dir = existing_directory('Choose where to save decrypted files')
+            if destination_dir:
+                decrypt_files(self.files, destination_dir, self.privateKey.text())
 
-    def load_private_key(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        self.private_key_path, _ = QFileDialog.getOpenFileName(self, "Loading public key")
-        if self.private_key_path:
-            filename = dialogs.file_from_path(self.private_key_path)
-            self.private_key_label.setText(filename)
+        else:
+            message = ''
+            if len(self.privateKey.text()) == 0:
+                message += 'You must provide path to private key\n'
+            if len(self.files) == 0:
+                message += 'You must choose files to decrypt\n'
+            self.messageLackOfInput(message)
 
-    def load_files_to_decrypt(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        self.files_to_decrypt, _ = QFileDialog.getOpenFileNames(self, "Choose files to decrypt")
-        if len(self.files_to_decrypt):
-            print("Files to decrypt: ", end='')
-            print(self.files_to_decrypt)
+    def messageLackOfInput(self, message):
+        msg = QMessageBox()
+        msg.setWindowTitle('Warning')
+        msg.setText(message)
+        msg.setIcon(QMessageBox.Warning)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
 
-    def decrypt_files(self):
-        if len(self.files_to_decrypt) and self.private_key_path:
-            decrypt_files(file_paths=self.files_to_decrypt, private_key_path=self.private_key_path)
-        if len(self.files_to_decrypt) == 0:
-            print("No files to decrypt given")
-        if self.private_key_path is None:
-            print("No private key given")
-
+    def messageDecryptingFinished(self):
+        msg = QMessageBox()
+        msg.setWindowTitle('Decrypting')
+        msg.setText('Decrypting finished!')
+        msg.setIcon(QMessageBox.Information)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()

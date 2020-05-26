@@ -46,7 +46,7 @@ class AsymmetricKeyGenerationDialog(QDialog):
                 private_key_file.write(asymm_key.private_to_bytes())
             with open(dirpath + '/' + self.filename.text()+ '.pub', "wb") as public_key_file:
                 public_key_file.write(asymm_key.public_to_bytes())
-            # self.close()
+            self.messageCreatedKeys()
         
 
     def messageNoFileNameTyped(self):
@@ -54,5 +54,13 @@ class AsymmetricKeyGenerationDialog(QDialog):
         msg.setWindowTitle('Warning')
         msg.setText('Type filename first!')
         msg.setIcon(QMessageBox.Warning)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
+
+    def messageCreatedKeys(self):
+        msg = QMessageBox()
+        msg.setWindowTitle('Keys Generation')
+        msg.setText('Created and saved %s keys!' % self.algorithm_combobox.currentText())
+        msg.setIcon(QMessageBox.Information)
         msg.setStandardButtons(QMessageBox.Ok)
         msg.exec_()
