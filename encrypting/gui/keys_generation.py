@@ -22,6 +22,10 @@ class AsymmetricKeyGenerationDialog(QDialog):
         self.setLayout(mainLayout)
         self.setWindowTitle("Asymmetric key generation")
 
+    def reject(self):
+        """To avoid closing on esc press"""
+        pass
+
     def createFormGroupBox(self):
         self.formGroupBox = QGroupBox("Creating asymmetric key")
         layout = QFormLayout()

@@ -30,8 +30,8 @@ class Window(QMainWindow):
         #     self.setStyleSheet(styles.read())
         self.setWindowTitle(config['gui']['title']) 
         # self.setFixedSize(
-        #     config['gui']['width'],
-        #     config['gui']['height']
+            # config['gui']['width'],
+            # config['gui']['height']
         # )
 
         vbox = QVBoxLayout()
