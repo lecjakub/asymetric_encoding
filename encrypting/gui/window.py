@@ -16,8 +16,8 @@ class Window(QMainWindow):
 
     def __init__(self, *args, **kwargs):
         super(Window, self).__init__(*args, **kwargs)
-        # with open('style.css') as styles:
-        #     self.setStyleSheet(styles.read())
+        # with open('encrypting/gui/style.css') as styles:
+            # self.setStyleSheet(styles.read())
         self.setWindowTitle(config['gui']['title']) 
         # self.setFixedSize(
             # config['gui']['width'],
