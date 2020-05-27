@@ -13,6 +13,7 @@ class AsymmetricKeyGenerationDialog(QDialog):
         self.createFormGroupBox()
 
         buttonBox = QDialogButtonBox(QDialogButtonBox.Save)
+        buttonBox.button(QDialogButtonBox.Save).setText("Generate key")
         buttonBox.accepted.connect(self.saveKeys)
         buttonBox.rejected.connect(self.reject)
 

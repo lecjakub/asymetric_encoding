@@ -16,13 +16,16 @@ class Window(QMainWindow):
 
     def __init__(self, *args, **kwargs):
         super(Window, self).__init__(*args, **kwargs)
+
+        # pan włączy c:
         # with open(config['gui']['stylesheet']) as styles:
             # self.setStyleSheet(styles.read())
+
         self.setWindowTitle(config['gui']['title']) 
-        # self.setFixedSize(
-            # config['gui']['width'],
-            # config['gui']['height']
-        # )
+        self.setFixedSize(
+            config['gui']['width'],
+            config['gui']['height']
+        )
 
         vbox = QVBoxLayout()
         vbox.addWidget(AsymmetricKeyGenerationDialog())

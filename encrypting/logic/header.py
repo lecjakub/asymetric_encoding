@@ -45,9 +45,6 @@ class Header():
         plug_size = int.from_bytes(file.read(4),'little')
         
         size_to_decode = int.from_bytes(file.read(32),'little')
-            # Is extension necessary?
-            # file_ext_size = int.from_bytes(file.read(1),'little')
-            # self.file_ext = str(file.read(file_ext_size),'ascii')
 
         return Header(final,next_alg,next_key,size_to_decode,file_name,plug_size,init_vector,counter)
 
