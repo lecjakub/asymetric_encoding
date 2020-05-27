@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QVBoxLayout, QPushButton, QHeaderView, QMessageBox, QInputDialog, QLabel, QDialogButtonBox,  QComboBox, QLineEdit, QApplication, QFormLayout, QDialog, QGroupBox
 from PyQt5.QtCore import Qt
 from encrypting.config import config
-from encrypting.gui.helpers import open_file, open_multiple_files, existing_directory
+from encrypting.gui.helpers import open_file, open_multiple_files, existing_directory, validate_key_size
 from encrypting.logic.core import encrypt_files
 
 
@@ -55,6 +55,8 @@ class EncryptionDialog(QDialog):
 
     def encrypt(self):
         if len(self.public_key.text()) > 0 and len(self.files) > 0:
+            if not validate_key_size(self.public_key.text()):
+                return
             destination_dir = existing_directory('Choose where to save encrypted files')
             encrypt_files(self.files, destination_dir, self.public_key.text(), self.symmetric_algorithm_combobox.currentText())
             self.messageEncryptingFinished()

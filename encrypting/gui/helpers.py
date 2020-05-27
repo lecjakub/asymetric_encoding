@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QFileDialog
 import ntpath
-
+import os
+from PyQt5.QtWidgets import QMessageBox
 def existing_directory(caption):
     options = QFileDialog.Options()
     options |= QFileDialog.DontUseNativeDialog
@@ -29,3 +30,19 @@ def file_from_path(path : str):
     head, tail = ntpath.split(path)
     return tail or ntpath.basename(head)
 
+
+def validate_key_size(path:str):
+    ksize = os.path.getsize(path)
+    valid = ksize == 520 or ksize == 1032
+    if not valid:
+        messageInvalidKeySize()
+    return valid
+
+
+def messageInvalidKeySize():
+        msg = QMessageBox()
+        msg.setWindowTitle('Warning')
+        msg.setText("Key is invalid!")
+        msg.setIcon(QMessageBox.Warning)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()

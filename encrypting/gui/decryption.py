@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QLineEdit, QGroupBox, QFormLayout, QVBoxLayout, QLabel, QPushButton, QMessageBox
-from encrypting.gui.helpers import existing_directory, open_multiple_files, open_file
+from encrypting.gui.helpers import existing_directory, open_multiple_files, open_file, validate_key_size
 from encrypting.logic.core import decrypt_files
 class DecryptionDialog(QDialog):
     def __init__(self, *args, **kwargs):
@@ -47,6 +47,8 @@ class DecryptionDialog(QDialog):
 
     def decrypt(self):
         if len(self.files) > 0 and len(self.privateKey.text()) > 0:
+            if not validate_key_size(self.privateKey.text()):
+                return
             destination_dir = existing_directory('Choose where to save decrypted files')
             if destination_dir:
                 decrypt_files(self.files, destination_dir, self.privateKey.text())
